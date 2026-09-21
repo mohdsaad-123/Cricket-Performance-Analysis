@@ -1,6 +1,6 @@
 def get_top_run_scorers(deliveries, top_n=10):
 
-    top_scorers = (
+    runs = (
         deliveries
         .groupby("batter")["batsman_runs"]
         .sum()
@@ -9,60 +9,85 @@ def get_top_run_scorers(deliveries, top_n=10):
         .reset_index()
     )
 
-    top_scorers.columns = ["player", "runs"]
+    runs.columns = [
+        "Player",
+        "Runs"
+    ]
 
-    return top_scorers
+    return runs
 
 
 def get_top_wicket_takers(deliveries, top_n=10):
 
     wickets = deliveries[
-        deliveries["is_wicket"] == 1
+        (deliveries["is_wicket"] == 1) &
+        (~deliveries["dismissal_kind"].isin(
+            [
+                "run out",
+                "retired hurt",
+                "obstructing the field"
+            ]
+        ))
     ]
 
-    top_wicket_takers = (
+    wicket_counts = (
         wickets
         .groupby("bowler")
         .size()
         .sort_values(ascending=False)
         .head(top_n)
-        .reset_index(name="wickets")
+        .reset_index()
     )
 
-    return top_wicket_takers
+    wicket_counts.columns = [
+        "Player",
+        "Wickets"
+    ]
+
+    return wicket_counts
 
 
-def get_top_sixes(deliveries, top_n=10):
+def get_most_sixes(deliveries, top_n=10):
 
     sixes = deliveries[
         deliveries["batsman_runs"] == 6
     ]
 
-    top_six_hitters = (
+    six_counts = (
         sixes
         .groupby("batter")
         .size()
         .sort_values(ascending=False)
         .head(top_n)
-        .reset_index(name="sixes")
+        .reset_index()
     )
 
-    return top_six_hitters
+    six_counts.columns = [
+        "Player",
+        "Sixes"
+    ]
+
+    return six_counts
 
 
-def get_top_fours(deliveries, top_n=10):
+def get_most_fours(deliveries, top_n=10):
 
     fours = deliveries[
         deliveries["batsman_runs"] == 4
     ]
 
-    top_four_hitters = (
+    four_counts = (
         fours
         .groupby("batter")
         .size()
         .sort_values(ascending=False)
         .head(top_n)
-        .reset_index(name="fours")
+        .reset_index()
     )
 
-    return top_four_hitters
+    four_counts.columns = [
+        "Player",
+        "Fours"
+    ]
+
+    return four_counts
